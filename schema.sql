@@ -32,7 +32,7 @@ CREATE TABLE "beers" (
     "batch_vol" FLOAT,
     "pre-boil_vol" FLOAT,
     "expected_og" FLOAT,
-    "expected_fg" FLOAT,
+    "expected_fg" FLOAT CHECK ("expected_fg" < "expected_og"),
     PRIMARY KEY ("id"),
     FOREIGN KEY ("brewer_id") REFERENCES "brewers" ("id")
 );
@@ -42,7 +42,7 @@ CREATE TABLE "staffing" (
     "brewer_id" INTEGER,
     "brewery_id" INTEGER,
     "start_date" DATE NOT NULL DEFAULT CURRENT_DATE,
-    "end_date" DATE,
+    "end_date" DATE CHECK ("end_date" >= "start_date") DEFAULT CURRENT_DATE,
     "role" TEXT NOT NULL CHECK("role" IN ('admin', 'user')),
     PRIMARY KEY ("brewer_id", "brewery_id", "start_date"),
     FOREIGN KEY ("brewery_id") REFERENCES "breweries" ("id"),
@@ -55,7 +55,7 @@ CREATE TABLE "brews" (
     "beer_id" INTEGER,
     "brewer_id" INTEGER,
     "brewery_id" INTEGER,
-    "brew_date" DATE,
+    "brew_date" DATE NOT NULL DEFAULT CURRENT_DATE,
     "OG" FLOAT,
     "FG" FLOAT,
     "notes" TEXT,
@@ -203,4 +203,3 @@ BEGIN
     INSERT INTO "ingredients" ("name", "category")
     VALUES (NEW."name", 'adjuncts');
 END;
-
