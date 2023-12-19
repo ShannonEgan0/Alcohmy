@@ -74,9 +74,60 @@ The Alcohmy database contains the following entities:
 * `category` - `TEXT` - The category a particular registered ingredient belongs to. Must be in the following list: [hops, malts, adjuncts, yeasts]
 #### Hops
 * `id` - `INT` - Primary key representing a particular hop variety
-* `name` - `TEXT` - The name of a hop, and a foreign key, connecting to `ingredients`.`id` associating a particular hop variety to the full list of individual ingredients.
-* `alpha-acid-lower` - `INT` -
-* `alpha-acid-upper` - `INT` - 
+* `name` - `TEXT` - The name of a hop, and a foreign key, connecting to `ingredients`.`id` associating a particular hop variety to the full table of individual ingredients.
+* `alpha-acid-lower` - `INT` - The lower range of alpha acid content of a particular hop, as a percentage.
+* `alpha-acid-upper` - `INT` - The upper range of alpha acid content of a particular hop, as a percentage.
+* `beta-acid-lower` - `INT` - The lower range of beta acid content of a particular hop, as a percentage.
+* `beta-acid-upper` - `INT` - The upper range of beta acid content of a particular hop, as a percentage.
+* `characteristics` - `TEXT` - A description of the character imparted by a hop to a beer.
+* `country` - `TEXT` - Country of origin of a particular hop variety.
+* `pellets` - `INT` - A 0 or 1, representing whether the hops are in pellet form, or fresh.
+* #### Malts
+* `id` - `INT` - Primary key representing a particular malt variety.
+* `name` - `TEXT` - The name of a malt variety, and a foreign key, connecting to `ingredients`.`id` associating a particular malt variety to the full table of individual ingredients.
+* `extract` - `INT` - A 0 or 1, representing whether a malt is in extract form or grain form.
+* `category` - `TEXT` - The category of malt, base or specialty.
+* `characteristics` - `TEXT` - A description of the character of the malt in a beer.
+#### Yeasts
+* `id` - `INT` - Primary key representing a particular strain of yeast.
+* `name` - `TEXT` - The name of a a yeast strain and a foreign key connecting to `ingredients`.`id` associating a particular yeast variety to the full table of individual ingredients.
+* `brand` - `TEXT` - The brand a of a particular strain of yeast.
+* `species` - `TEXT` - The biological species of a particular strain of yeast.
+* `packet` - `INT` - A 0 or 1, representing whether the yeast is in dry, or liquid form.
+* `styles` - `TEXT` - The intended brew styles for a particular yeast strain.
+* `tolerance_lower` - `FLOAT` - The lower bound of expected tolerable alcohol by volume of a yeast strain, as a percentage.
+* `tolerance_upper` - `FLOAT` - The upper bound of expected tolerable alcohol by volume of a yeast strain, as a percentage.
+* `attenuation_lower` - `FLOAT` - The lower bound of expected attenuation of a particular yeast strain, as a percentage.
+* `attenuation_upper` - `FLOAT` - The upper bound of expected attenuation of a particular yeast strain, as a percentage.
+* `temperature_lower` - `FLOAT` - The lower bound of the recommended optimal temperature range for a yeast strain to behave as expected. 
+* `temperature_upper` - `FLAOT` - The upper bound of the recommended optimal temperature range for a yeast strain to behave as expected.
+* `flocculation` - `TEXT` - A verbal description of the expected flocculation of a yeast strain. For example this field could be "high", indicating a high amount of flocculation exhibited by the yeast.
+#### Adjuncts
+* `id` - `INT` - Primary key representing a particular adjunct ingredient. This could be a fermentable such as dextrose, or a fruit or other addition.
+* `name` - `TEXT` - The name of a particular adjunct ingredient. This is also a foreign key, connecting a particular adjunct to `ingredients`.`id` associating it to the main table of ingredients.
+* `description` - `TEXT` - A bried description of an adjunct ingredient, and possible recommendations for its use.
+#### Recipes
+* `id` - `INT` - A primary key representing a step in a brewing recipe.
+* `beer_id` - `INT` - A foreign key connecting a recipe step to a particular beer via `beers`.`id`.
+* `step` - `INT` - An integer value, specifying the step order for a beer recipe. These values should be unique for a particular beer, and are to be used for best indication of a recipe visually. In theory, this could be omitted, and rules could be included to order steps logically based on `time` and `ingredients`.`type`, but representing a recipe clearly is important, and including this field allows this control.
+* `ingredient_id` - `INT` - The unique ID of a particular ingredient used in this step of a recipe. This is a foreign key connecting `ingredients`.`id`. 
+* `instruction` - `TEXT` - A text description of the what should be done in this step of the recipe.
+* `time` - `INT` - The time in the boil when an addition should occur. The highest `time` value in all steps of a particular `beer_id` will define the total boil time required, and each `time` specified is the amount of time that should be left in the boil when an addition is made. For example, a `time` of 30, means that 30 mins should remain on the boil when the `ingredient_id` is added, or when the `instruction` is performed. This value should be left NULL for steps that do not occur mid boil, such as additions to the grain bill, or the addition of yeast.
+* `amount` - `FLOAT` - This is the quantity of `ingredient_id` to be used in this `step` of the recipe.
+* `amount_units` - `TEXT` - The units a particular `amount` should be measured in for this `step` of the recipe.
+* `notes` - `TEXT` - Additional notes on this particular step of the recipe, that can be separated from `instruction`.
+#### Ingredient Inventories
+* `id` - `INT` - Primary key representing an entry in a breweries ingredient inventories.
+* `brewery_id` - `INT` - A foreign key connecting to `breweries`.`id` associating a particular ingredient in inventory, with a particular brewery.
+* `ingredient_id` - `INT` - A foreign key connecting to 'ingredients'.'id' associating an item in an inventory to a particular set of ingredient details.
+* `purchase_date` - `DATE` - The date on which a particular inventory entry was purchased. This is a vital field for assessing degradation in a hop or malt's quality over time. The necessity of this field means that particular ingredients will not be unique in an inventory. Two purchases of "Galaxy" hops will require two rows in the table, to ensure that quality of each is monitored separately.
+* `delivery_date` - `DATE` - The date on which a particular inventory entry was delivered or acquired by a brewery. This field is used to verify the presence of a purchase in a brewery, where lots of production is occurring. This is expected to be NULL if undelivered. 
+* `amount` - `FLOAT` - The quantity of a particular ingredient in a brewery's inventory, in units specified in the `amount_units` field.
+* `amount_units` - `TEXT` - The measurement units the quantity of a particular ingredient in an inventory is measured in.
+* `package_age` - `DATE` - The package or production age of a particular ingredient in an inventory. This refers to the date of packaging of a hop variety, or age of a yeast package, which can have dramatic effects on their effectiveness.
+
+### Ingredient Insertion Triggers
+Insertion triggers exist for the `hops`, `malts`, `yeasts` and `adjuncts` tables, to assist in adding a unique ingredient id to the `ingredients` table, and associating it with the added ingredient. This structure ensures that the different varieties of ingredients can be referred to in the same table, such as in the `ingredient_inventories` or `recipes` tables, without having redundant fields for different ingredient types.
 
 ### Entity Relationship Diagram
 ![Entity Relationship Diagram](Alcohmy.svg)
