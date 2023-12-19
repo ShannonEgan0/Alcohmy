@@ -60,6 +60,23 @@ The Alcohmy database contains the following entities:
 * `start_date` - `DATE` - The date a staffing engagement started. This will default to the current date, but should refer specifically to when a brewer commences an engagement with a brewery. Will also form part of a primary key with `brewer_id` and `brewery_id`. Care needs to be taken when altering `start_date` to ensure that the uniqueness of `brewer_id`, `brewery_id` and `start_date` is not compromised.
 * `end_date` - `DATE` - The date a staffing engagement ended. A check exists to ensure this is a later date than `start_date`, and will default to the current date if left unspecified.
 * `role` - `TEXT` - The role of a brewer in an engagement with a brewery. This is currently limited to either "admin" or "user", but should likely be expanded, or have roles defined by a brewery.
+#### Brews
+* `id` - `INT` - Primary key representing a single "brew" or production of beer.
+* `beer_id` - `INT` - A foreign key connecting to `beers`.`id` associating a brew with a particular beer.
+* `brewer_id` - `INT` - A foreign key connecting to `brewers`.`id` associating a brew with the person who brewed it. Note that this only really allows space for one primary brewer at the moment, which may be a flaw for large productions, if records are to be kept of all brewers participating in a brew.
+* `brew_date` - `DATE` - The date upon which a brew is completed. Defaults to the date upon which the brew is registered.
+* `OG` - `FLOAT` - The unitless original gravity measurement after completion of a brew.
+* `FG` - `FLOAT` - The unitless final gravity measurement after completion of fermentation of a single brew. A flaw in this field is that it can only record a single final gravity measurement. A separate table should be considered to tie this brew to successive gravity measurements over time.
+* `notes` - `TEXT` - Notes recording specific observations from during the brew process.
+#### Ingredients
+* `id` - `INT` - Primary key representing a single recorded ingredient.
+* `name` - `TEXT` - Foreign key labelling an ingredient and associating it to a table of properties associated with that ingredient category.
+* `category` - `TEXT` - The category a particular registered ingredient belongs to. Must be in the following list: [hops, malts, adjuncts, yeasts]
+#### Hops
+* `id` - `INT` - Primary key representing a particular hop variety
+* `name` - `TEXT` - The name of a hop, and a foreign key, connecting to `ingredients`.`id` associating a particular hop variety to the full list of individual ingredients.
+* `alpha-acid-lower` - `INT` -
+* `alpha-acid-upper` - `INT` - 
 
 ### Entity Relationship Diagram
 ![Entity Relationship Diagram](Alcohmy.svg)
