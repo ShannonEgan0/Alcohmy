@@ -48,6 +48,8 @@ CREATE TABLE "staffing" (
     FOREIGN KEY ("brewery_id") REFERENCES "breweries" ("id"),
     FOREIGN KEY ("brewer_id") REFERENCES "brewers" ("id")
 );
+-- Covering index to facilitate searches of all staff at a particular brewery
+CREATE INDEX "staff_brewery" ON "staffing" ("brewery_id", "brewer_id");
 
 -- Table of actual brews, so occasions on which beers were made
 CREATE TABLE "brews" (
@@ -64,6 +66,8 @@ CREATE TABLE "brews" (
     FOREIGN KEY ("brewer_id") REFERENCES "brewers" ("id"),
     FOREIGN KEY ("brewery_id") REFERENCES "breweries" ("id")
 );
+-- Covering index to accelerate searches of all brews created at a brewery, and the beers brewed
+CREATE INDEX "brews_beers" ON "brews" ("brewery_id", "beer_id");
 
 -- Additional ingredients table that ties item details to a full list for reference in inventories
 CREATE TABLE "ingredients" (
@@ -142,6 +146,7 @@ CREATE TABLE "recipes" (
     FOREIGN KEY ("beer_id") REFERENCES "beers" ("id"),
     FOREIGN KEY ("ingredient_id") REFERENCES "ingredients" ("id")
 );
+CREATE INDEX "recipe_beer_index" ON "recipes" ("beer_id");
 
 -- Table of brewery ingredient inventories, each new addition of an ingredient is logged separately, for aging and variable quality purposes
 CREATE TABLE "ingredient_inventories" (
@@ -157,6 +162,8 @@ CREATE TABLE "ingredient_inventories" (
     FOREIGN KEY ("brewery_id") REFERENCES "breweries" ("id"),
     FOREIGN KEY ("ingredient_id") REFERENCES "ingredients" ("id")
 );
+-- Index created for "brewery_ids" as the most common query will be all ingredients belonging to X brewery
+CREATE INDEX "ing_inv_brewery_index" ON "ingredient_inventories" ("brewery_id");
 
 -- This creates a view of brewers without passwords. It's possible another version of this is needed without first and last names for social use, rather than admin use
 CREATE VIEW "brewers_clean" AS
@@ -193,7 +200,6 @@ BEGIN
     INSERT INTO "ingredients" ("name", "category")
     VALUES (NEW."name", 'adjuncts');
 END;
-
 
 -- Create trigger to add ingredient when adding an adjunct, including the ingredient ID
 CREATE TRIGGER "add_adjunct"

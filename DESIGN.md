@@ -28,6 +28,7 @@ Systems that could be added to Alcohmy in the future:
 
 ## Entities
 The Alcohmy database contains the following entities:
+
 #### Brewers
 * `id` - `INT` - Primary key representing a single brewer/user.
 * `first_name` - `TEXT` - First name of the registered user.
@@ -35,6 +36,7 @@ The Alcohmy database contains the following entities:
 * `email` - `TEXT` - Unique email address of the registered user.
 * `username` - `TEXT` - Unique username of a particular registered user for sign in purposes, with a minimum length.
 * `password` - `TEXT` - A password associated with a user for sign in purposes, with a minimum length.
+
 #### Breweries
 * `id` - `INT` - Primary key representing a single brewery.
 * `name` - `TEXT` - Name of a registered brewery.
@@ -42,6 +44,7 @@ The Alcohmy database contains the following entities:
 * `city` - `TEXT` - City of a registered brewery.
 * `postcode` - `TEXT` - Postcode of a registered brewery.
 * `country` - `TEXT` - Country of a registered brewery.
+
 #### Beers
 * `id` - `INT` - Primary key representing a single named recipe for a beer.
 * `name` - `TEXT` - The name of a single registered beer.
@@ -54,12 +57,14 @@ The Alcohmy database contains the following entities:
 * `pre-boil_vol` - `FLOAT` - The intended volume in litres of a particular beer's brew at the start of the boil. In practice this value will change in the brews table when the beer is actually made, but this field is essential for batch scaling of ingredients from the `recipes` table.
 * `expected_og` - `FLOAT` - The expected original gravity after completion of brewing of the registered beer. This will vary in practice due to efficiency of a brew, but coupled with `expected_fg` will indicate expected alcohol by volume and taste of beer.
 * `expected_fg` - `FLOAT` - The expected final gravity after completion of fermentation of the registered beer. This will vary in practice due to variation in the OG and attenuation of the yeast, but coupled with `expected_og` will indicate expected alcohol by volume and taste of beer. A check is in place to ensure that `expected_og` is less than `expected_og`.
+
 #### Staffing
 * `brewer_id` - `INT` - A foreign key connecting to `brewers`.`id` associating a staffing engagement to a particular brewer. Will also form part of a primary key with `brewery_id` and `start_date`.
 * `brewery_id` - `INT` - A foreign key connecting to `breweries`.`id` associating a staffing engagement to a particlar brewery. Will also form part of a primary key with `brewer_id` and `start_date`.
 * `start_date` - `DATE` - The date a staffing engagement started. This will default to the current date, but should refer specifically to when a brewer commences an engagement with a brewery. Will also form part of a primary key with `brewer_id` and `brewery_id`. Care needs to be taken when altering `start_date` to ensure that the uniqueness of `brewer_id`, `brewery_id` and `start_date` is not compromised.
 * `end_date` - `DATE` - The date a staffing engagement ended. A check exists to ensure this is a later date than `start_date`, and will default to the current date if left unspecified.
 * `role` - `TEXT` - The role of a brewer in an engagement with a brewery. This is currently limited to either "admin" or "user", but should likely be expanded, or have roles defined by a brewery.
+
 #### Brews
 * `id` - `INT` - Primary key representing a single "brew" or production of beer.
 * `beer_id` - `INT` - A foreign key connecting to `beers`.`id` associating a brew with a particular beer.
@@ -68,10 +73,12 @@ The Alcohmy database contains the following entities:
 * `OG` - `FLOAT` - The unitless original gravity measurement after completion of a brew.
 * `FG` - `FLOAT` - The unitless final gravity measurement after completion of fermentation of a single brew. A flaw in this field is that it can only record a single final gravity measurement. A separate table should be considered to tie this brew to successive gravity measurements over time.
 * `notes` - `TEXT` - Notes recording specific observations from during the brew process.
+
 #### Ingredients
 * `id` - `INT` - Primary key representing a single recorded ingredient.
 * `name` - `TEXT` - Foreign key labelling an ingredient and associating it to a table of properties associated with that ingredient category.
 * `category` - `TEXT` - The category a particular registered ingredient belongs to. Must be in the following list: [hops, malts, adjuncts, yeasts]
+
 #### Hops
 * `id` - `INT` - Primary key representing a particular hop variety
 * `name` - `TEXT` - The name of a hop, and a foreign key, connecting to `ingredients`.`id` associating a particular hop variety to the full table of individual ingredients.
@@ -82,12 +89,14 @@ The Alcohmy database contains the following entities:
 * `characteristics` - `TEXT` - A description of the character imparted by a hop to a beer.
 * `country` - `TEXT` - Country of origin of a particular hop variety.
 * `pellets` - `INT` - A 0 or 1, representing whether the hops are in pellet form, or fresh.
-* #### Malts
+
+#### Malts
 * `id` - `INT` - Primary key representing a particular malt variety.
 * `name` - `TEXT` - The name of a malt variety, and a foreign key, connecting to `ingredients`.`id` associating a particular malt variety to the full table of individual ingredients.
 * `extract` - `INT` - A 0 or 1, representing whether a malt is in extract form or grain form.
 * `category` - `TEXT` - The category of malt, base or specialty.
 * `characteristics` - `TEXT` - A description of the character of the malt in a beer.
+
 #### Yeasts
 * `id` - `INT` - Primary key representing a particular strain of yeast.
 * `name` - `TEXT` - The name of a a yeast strain and a foreign key connecting to `ingredients`.`id` associating a particular yeast variety to the full table of individual ingredients.
@@ -102,10 +111,12 @@ The Alcohmy database contains the following entities:
 * `temperature_lower` - `FLOAT` - The lower bound of the recommended optimal temperature range for a yeast strain to behave as expected. 
 * `temperature_upper` - `FLAOT` - The upper bound of the recommended optimal temperature range for a yeast strain to behave as expected.
 * `flocculation` - `TEXT` - A verbal description of the expected flocculation of a yeast strain. For example this field could be "high", indicating a high amount of flocculation exhibited by the yeast.
+
 #### Adjuncts
 * `id` - `INT` - Primary key representing a particular adjunct ingredient. This could be a fermentable such as dextrose, or a fruit or other addition.
 * `name` - `TEXT` - The name of a particular adjunct ingredient. This is also a foreign key, connecting a particular adjunct to `ingredients`.`id` associating it to the main table of ingredients.
 * `description` - `TEXT` - A bried description of an adjunct ingredient, and possible recommendations for its use.
+
 #### Recipes
 * `id` - `INT` - A primary key representing a step in a brewing recipe.
 * `beer_id` - `INT` - A foreign key connecting a recipe step to a particular beer via `beers`.`id`.
@@ -116,6 +127,7 @@ The Alcohmy database contains the following entities:
 * `amount` - `FLOAT` - This is the quantity of `ingredient_id` to be used in this `step` of the recipe.
 * `amount_units` - `TEXT` - The units a particular `amount` should be measured in for this `step` of the recipe.
 * `notes` - `TEXT` - Additional notes on this particular step of the recipe, that can be separated from `instruction`.
+
 #### Ingredient Inventories
 * `id` - `INT` - Primary key representing an entry in a breweries ingredient inventories.
 * `brewery_id` - `INT` - A foreign key connecting to `breweries`.`id` associating a particular ingredient in inventory, with a particular brewery.
@@ -129,5 +141,21 @@ The Alcohmy database contains the following entities:
 ### Ingredient Insertion Triggers
 Insertion triggers exist for the `hops`, `malts`, `yeasts` and `adjuncts` tables, to assist in adding a unique ingredient id to the `ingredients` table, and associating it with the added ingredient. This structure ensures that the different varieties of ingredients can be referred to in the same table, such as in the `ingredient_inventories` or `recipes` tables, without having redundant fields for different ingredient types.
 
-### Entity Relationship Diagram
-![Entity Relationship Diagram](Alcohmy.svg)
+### Relationships
+<p style="text-align: center;"><img src="Alcohmy.svg"><i>Entity relationship diagram</i></p>
+
+A single beer can have 0 or many steps, 0 if it has just been created, and many if the creation steps have been added. Each of those steps can connect to 0 or 1 ingredients, and if they do connect to an ingredient, that ingredient can connect to any category of ingredient (hops, yeasts, malts, or adjuncts) to access ingredient specific details.
+
+A brew will connect to exactly 1 beer, (Note that this is an error in the ERD and should be corrected) as it has to be the brewing of a specific registered beer, even if that beer is a placeholder without recipe details. The brew can also be connected to a single brewery, the place it is brewed at, and exactly 1 brewer.
+
+A brewery can have 0 or many inventory entries, 0 if nothing is being tracked, but if ingredients are monitored, an entry for each one. Each of those inventory entries will connect to a particular ingredient, and again to its associated details.
+
+### Optimisations
+A covering index was added to `staffing` on `brewery_id`, `brewer_id` to facilitate the common query of all staff at a particular brewery.
+
+A covering index was also added to `brews` on `brewery_id`, `beer_id`, to optimise the common query for all brews made by a particular brewery.
+
+Indexes were also added to `recipes` on `beer_id` and `ingredient_inventories` on `brewery_id` to assist the extremely common query for all recipe steps and details for a particular beer, and t query for the inventory of a particular brewery.
+
+### Thanks to CS50SQL
+Link to information for the CS50SQL course which inspired this project can be found at https://cs50.harvard.edu/sql/2023/. I want to thank CS50SQL and all staff, particularly Carter Zenke for the course.

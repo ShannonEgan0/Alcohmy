@@ -102,11 +102,20 @@ FROM "ingredient_inventories"
 JOIN "ingredients" ON "ingredient_inventories"."ingredient_id" = "ingredients"."id"
 WHERE "brewery_id" = (SELECT "id" FROM "breweries" WHERE "name" = 'Big Brew Place');
 
--- Consume an amount of an item in inventory
+-- Consume an amount of an item in inventory, from the entry of that item particular item (eg. 'Galaxy' hops) with the highest amount
+WITH "maxamount_id" AS (
+    SELECT "id" 
+    FROM "ingredient_inventories"
+    WHERE 
+        "ingredient_id" = (SELECT "id" FROM "ingredients" WHERE "name" = 'Galaxy')
+        AND "brewery_id" = (SELECT "id" FROM "breweries" WHERE "name" = 'Big Brew Place')
+    ORDER BY "amount" DESC
+    LIMIT 1
+    )
 UPDATE "ingredient_inventories"
-SET "amount" = "amount" - 500
-WHERE "ingredient_id" = (SELECT "id" FROM "ingredients" WHERE "name" = 'Galaxy')
-AND "brewery_id" = (SELECT "id" FROM "breweries" WHERE "name" = 'Big Brew Place');
+SET "amount" = "amount" - 100
+WHERE "id" = (SELECT "id" FROM "maxamount_id")
+;
 
 -- Register recipe steps for a beer
 With "beer" AS (
@@ -163,11 +172,17 @@ FROM
 WHERE
     "beer_id" = (SELECT "id" FROM "beers" WHERE "name" = 'Galaxy Pale Ale');
 
+-- Select the hops in all inventories
+SELECT "amount", "ingredients"."name" AS "name" 
+FROM "ingredient_inventories" 
+JOIN "ingredients" ON "ingredient_inventories"."id" = "ingredients"."id" 
+JOIN "hops" ON "hops"."name" = "ingredients"."name";
+
 -- Log brew
 INSERT INTO "brews" ("beer_id", "brewer_id", "brewery_id", "OG", "FG", "notes")
 VALUES ((SELECT "id" FROM "beers" WHERE "name" = 'Galaxy Pale Ale'),
     (SELECT "id" FROM "brewers" WHERE "first_name" = 'Frodo' AND "last_name" = 'Baggins'),
-    (SELECT "id" FROM "brewers" WHERE "name" = 'Big Brew Place'),
+    (SELECT "id" FROM "breweries" WHERE "name" = 'Big Brew Place'),
     1.052, NULL,
     'OG came out lower than expected, might have stopped the boil too early.');
 
