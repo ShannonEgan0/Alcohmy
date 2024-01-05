@@ -8,7 +8,7 @@
 This project was completed as part of the CS50SQL online course.
 
 The Alcohmy database was designed as a system that could provide brewing support over two scales:
-- Assist homebrewers and single brewers who want to keep records of their own creations, and monitor their successes and failures
+- Assist homebrewers and single brewers who want to keep records of their own creations, monitor their successes and failures, and view other users shared recipes
 - Assist in larger scale brewery management systems, tracking inventories, production and staffing
 
 ## Scope
@@ -25,6 +25,8 @@ Systems that could be added to Alcohmy in the future:
 - Recipe/brewery review/rating/recommendation systems
 - A system for ensuring elements of brewery specific information are kept private when intended
 - Brewery specific role assignments for staffing engagements
+- Additions of pay details to the staffing table
+- A table for recording details for, and allow monitoring the inventory of cleaning products
 
 ## Entities
 The Alcohmy database contains the following entities:
@@ -144,9 +146,9 @@ Insertion triggers exist for the `hops`, `malts`, `yeasts` and `adjuncts` tables
 ### Relationships
 <p style="text-align: center;"><img src="Alcohmy.svg"><i>Entity relationship diagram</i></p>
 
-A single beer can have 0 or many steps, 0 if it has just been created, and many if the creation steps have been added. Each of those steps can connect to 0 or 1 ingredients, and if they do connect to an ingredient, that ingredient can connect to any category of ingredient (hops, yeasts, malts, or adjuncts) to access ingredient specific details.
+A single beer can have 0 or many steps, 0 if it has just been created or if no recipe is registered, and many if the creation steps have been added. Each of those steps can connect to 0 or 1 ingredients, and if they do connect to an ingredient, that ingredient can connect to 1 of any category of ingredient (hops, yeasts, malts, or adjuncts) to access ingredient specific details. Ingredients connect to 0 or many recipe steps, 0 if a registered ingredient is not used in any recipes, and many where it is used in steps, from one or more recipes.
 
-A brew will connect to exactly 1 beer, (Note that this is an error in the ERD and should be corrected) as it has to be the brewing of a specific registered beer, even if that beer is a placeholder without recipe details. The brew can also be connected to a single brewery, the place it is brewed at, and exactly 1 brewer.
+A brew will connect to exactly 1 beer, as it has to be the brewing of a specific registered beer, even if that beer is a placeholder without recipe details. The brew can also be connected to a single brewery, the place it is brewed at, and exactly 1 brewer.
 
 A brewery can have 0 or many inventory entries, 0 if nothing is being tracked, but if ingredients are monitored, an entry for each one. Each of those inventory entries will connect to a particular ingredient, and again to its associated details.
 
@@ -156,6 +158,10 @@ A covering index was added to `staffing` on `brewery_id`, `brewer_id` to facilit
 A covering index was also added to `brews` on `brewery_id`, `beer_id`, to optimise the common query for all brews made by a particular brewery.
 
 Indexes were also added to `recipes` on `beer_id` and `ingredient_inventories` on `brewery_id` to assist the extremely common query for all recipe steps and details for a particular beer, and t query for the inventory of a particular brewery.
+
+### Changes that <i>should</i> be implemented
+* `ingredient_inventories` should have `purchased_amount` and `purchase_price` fields, for proper record keeping
+* A more memory efficient strategy for `ingredients` using `id` and `category` as a primary key
 
 ### Thanks to CS50SQL
 Link to information for the CS50SQL course which inspired this project can be found at https://cs50.harvard.edu/sql/2023/. I want to thank CS50SQL and all staff, particularly Carter Zenke for the course.
