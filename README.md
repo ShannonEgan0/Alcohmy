@@ -2,8 +2,6 @@
 ### Completed for CS50SQL
 #### Author: Shannon Egan
 
-#### Video Demo: TODO: Include link here to youtube demo
-
 ## Introduction
 This project was completed as part of the CS50SQL online course.
 
